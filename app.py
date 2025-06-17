@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.figure_factory as ff
 import math
+from datetime import timedelta
+
 
 # --- App Configuration ---
 st.set_page_config(layout="wide", page_title="Website Project Simulator")
@@ -253,7 +255,6 @@ if st.sidebar.button("▶️ Run Simulation"):
         
         df = pd.DataFrame(gantt_data)
         fig = ff.create_gantt(df, colors=colors, index_col='Resource', show_colorbar=True, group_tasks=True, showgrid_x=True, title="Task-Level Timeline")
-        from datetime import timedelta
 
         start = df['Start'].min()
         end = df['Finish'].max()
