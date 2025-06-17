@@ -158,10 +158,13 @@ def run_simulation(resources, websites_info, efforts):
                 #    Finish=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['end_day'], 'D')}", 
                 #    Resource=task['type']
                 #))
+                project_start_date = pd.Timestamp.today().normalize() + pd.Timedelta(days=1)
                 gantt_tasks.append(dict(
-                    Task=f"Website {task['website_id']+1} - {task['type']}", 
-                    Start=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['start_day'], 'D')}", 
-                    Finish=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['end_day'], 'D')}", 
+                    Task=f"Website {task['website_id']+1} - {task['type']}",
+                    Start = f"{project_start_date + pd.to_timedelta(task['start_day'], 'D')}",
+                    Finish = f"{project_start_date + pd.to_timedelta(task['end_day'], 'D')}",
+                    #Start=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['start_day'], 'D')}", 
+                    #Finish=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['end_day'], 'D')}", 
                     Resource=task['type']
                 ))
 
@@ -250,10 +253,35 @@ if st.sidebar.button("▶️ Run Simulation"):
         
         df = pd.DataFrame(gantt_data)
         fig = ff.create_gantt(df, colors=colors, index_col='Resource', show_colorbar=True, group_tasks=True, showgrid_x=True, title="Task-Level Timeline")
+        from datetime import timedelta
+
+        start = df['Start'].min()
+        end = df['Finish'].max()
+
+        curr_date = pd.to_datetime(start)
+        while curr_date <= pd.to_datetime(end):
+            if curr_date.weekday() >= 5:  # Saturday=5, Sunday=6
+                fig.add_vrect(
+                    x0=curr_date,
+                    x1=curr_date + timedelta(days=1),
+                    fillcolor="lightgray",
+                    opacity=0.3,
+                    layer="below",
+                    line_width=0,
+                )
+            curr_date += timedelta(days=1)
+
         
         # Reverse the order of tasks on the y-axis to be more chronological
         fig.update_yaxes(autorange="reversed")
         fig.update_layout(height=1200)  # Adjust height as needed
+        fig.update_layout(
+            xaxis=dict(
+                tickformat="%b %d (%a)",
+                tickangle=-45
+            )
+        )
+
         
         st.plotly_chart(fig, use_container_width=True)
 
