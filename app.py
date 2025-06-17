@@ -152,12 +152,19 @@ def run_simulation(resources, websites_info, efforts):
                 task['end_day'] = earliest_start_time + task['effort']
                 
                 # Add to Gantt data
+                #gantt_tasks.append(dict(
+                #    Task=task['id'], 
+                #    Start=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['start_day'], 'D')}", 
+                #    Finish=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['end_day'], 'D')}", 
+                #    Resource=task['type']
+                #))
                 gantt_tasks.append(dict(
-                    Task=task['id'], 
+                    Task=f"Website {task['website_id']+1} - {task['type']}", 
                     Start=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['start_day'], 'D')}", 
                     Finish=f"{pd.to_datetime('2024-01-01') + pd.to_timedelta(task['end_day'], 'D')}", 
                     Resource=task['type']
                 ))
+
 
                 if task['website_id'] not in website_actual_start_logged:
                     website_actual_start_logged.add(task['website_id'])
@@ -246,6 +253,7 @@ if st.sidebar.button("▶️ Run Simulation"):
         
         # Reverse the order of tasks on the y-axis to be more chronological
         fig.update_yaxes(autorange="reversed")
+        fig.update_layout(height=1200)  # Adjust height as needed
         
         st.plotly_chart(fig, use_container_width=True)
 
